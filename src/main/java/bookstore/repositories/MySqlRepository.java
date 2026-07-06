@@ -8,12 +8,12 @@ import jakarta.persistence.Persistence;
 
 import java.util.List;
 
-public class ProductRepository implements IRepository<ProductEntity> {
+public class MySqlRepository implements IRepository<ProductEntity> {
 
     private final EntityManagerFactory emf;
     private final EntityManager em;
 
-    public ProductRepository() {
+    public MySqlRepository() {
         this.emf = Persistence.createEntityManagerFactory("mysql-pu");
         this.em = emf.createEntityManager();
     }
