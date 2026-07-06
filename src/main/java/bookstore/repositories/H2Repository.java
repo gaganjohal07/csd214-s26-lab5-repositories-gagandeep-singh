@@ -8,13 +8,13 @@ import jakarta.persistence.Persistence;
 
 import java.util.List;
 
-public class ProductRepository implements IRepository<ProductEntity> {
+public class H2Repository implements IRepository<ProductEntity> {
 
     private final EntityManagerFactory emf;
     private final EntityManager em;
 
-    public ProductRepository() {
-        this.emf = Persistence.createEntityManagerFactory("mysql-pu");
+    public H2Repository() {
+        this.emf = Persistence.createEntityManagerFactory("h2-pu");
         this.em = emf.createEntityManager();
     }
 
@@ -134,7 +134,7 @@ public class ProductRepository implements IRepository<ProductEntity> {
 
     @Override
     public String getDataSourceType() {
-        return "PERSISTENT MySQL (Production - Port 3333)";
+        return "TRANSIENT H2 (In-Memory SQL)";
     }
 
     @Override

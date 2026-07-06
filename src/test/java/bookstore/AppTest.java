@@ -1,6 +1,7 @@
 package bookstore;
 
 import bookstore.pojos.*;
+import bookstore.repositories.InMemoryListRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
+
     private final InputStream originalSystemIn = System.in;
 
     @AfterEach
@@ -19,44 +21,46 @@ class AppTest {
 
     @Test
     void testAppFlow_AddAndEditBook() {
-        // 1. Build the Clean Script
         StringBuilder script = new StringBuilder();
 
-        // --- ADD BOOK ---
-        script.append("1\n");             // Main Menu: Add Items
-        script.append("1\n");             // Add Menu: Add Book
-        script.append("Dune\n");          // Title
-        script.append("Frank Herbert\n"); // Author
-        script.append("10\n");            // Copies
-        script.append("25.00\n");         // Price
-        script.append("99\n");            // Exit Add Menu
+        script.append("1\n");
+        script.append("1\n");
+        script.append("Dune\n");
+        script.append("Frank Herbert\n");
+        script.append("10\n");
+        script.append("25.00\n");
+        script.append("99\n");
 
-        // --- EDIT BOOK ---
-        script.append("2\n");             // Main Menu: Edit Items
-        script.append("0\n");             // Select Index 0
-        script.append("Dune Messiah\n");  // Change Title
-        script.append("\n");              // Price: Keep
-        script.append("\n");              // Copies: Keep
-        script.append("\n");              // Author: Keep
+        script.append("2\n");
+        script.append("0\n");
+        script.append("Dune Messiah\n");
+        script.append("\n");
+        script.append("\n");
+        script.append("\n");
 
-        // --- QUIT ---
-        script.append("99\n");            // Quit
+        script.append("99\n");
 
-        // 2. Inject
         System.setIn(new ByteArrayInputStream(script.toString().getBytes()));
 
-        // 3. Run
-        App app = new App() {
+        InMemoryListRepository repository = new InMemoryListRepository();
+
+        App app = new App(repository) {
             @Override
-            public void populate() { /* clean start */ }
+            public void populate() {
+            }
         };
+
         app.run();
 
-        // 4. Verify
-        Book expected = new Book("Frank Herbert", "Dune Messiah", 25.00, 10);
-        SaleableItem result = app.findItem(expected);
+        assertEquals(1, repository.count());
+
+        Book result = (Book) repository.findAll()
+                .stream()
+                .findFirst()
+                .map(entity -> Book.fromEntity((bookstore.entities.BookEntity) entity))
+                .orElse(null);
 
         assertNotNull(result);
-        assertEquals("Dune Messiah", ((Book)result).getTitle());
+        assertEquals("Dune Messiah", result.getTitle());
     }
 }
